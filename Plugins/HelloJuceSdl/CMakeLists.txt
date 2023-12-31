@@ -38,7 +38,9 @@ target_sources(${BaseTargetName}
         Source/PluginProcessor.cpp
         Source/PluginProcessor.h
         Source/PluginEditor.cpp
-        Source/PluginEditor.h)
+        Source/PluginEditor.h
+        Source/SDLRunner.cpp
+        Source/SDLRunner.h)
 
 target_compile_definitions(${BaseTargetName}
     PUBLIC
