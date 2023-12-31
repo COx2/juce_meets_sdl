@@ -89,6 +89,9 @@ juce::Rectangle<int> AudioPluginAudioProcessorEditor::getHostComponentRectangle(
     {
         scale_factor = this->getPeer()->getPlatformScaleFactor();
     }
+
+    scale_factor = this->getApproximateScaleFactorForComponent(juceHwndView.get());
+
     return sdlHostRectangle_ * scale_factor;
 #endif
     
