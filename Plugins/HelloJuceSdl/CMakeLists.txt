@@ -2,7 +2,19 @@ project(HelloJuceSdl VERSION 0.0.1)
 
 set (BaseTargetName HelloJuceSdl)
 
-add_subdirectory(${})
+# Adds all the module sources so they appear correctly in the IDE
+set_property(GLOBAL PROPERTY USE_FOLDERS YES)
+option(JUCE_ENABLE_MODULE_SOURCE_GROUPS "Enable Module Source Groups" ON)
+
+# Set any of these to "ON" if you want to build one of the juce examples or extras (Projucer/AudioPluginHost, etc):
+option(JUCE_BUILD_EXTRAS "Build JUCE Extras" OFF)
+option(JUCE_BUILD_EXAMPLES "Build JUCE Examples" OFF)
+
+message(STATUS "THIS_JUCE_DIRECTORY: ${THIS_JUCE_DIRECTORY}")
+add_subdirectory(${THIS_JUCE_DIRECTORY} JUCE EXCLUDE_FROM_ALL)
+
+message(STATUS "THIS_SDL_DIRECTORY: ${THIS_SDL_DIRECTORY}")
+add_subdirectory(${THIS_SDL_DIRECTORY} SDL EXCLUDE_FROM_ALL)
 
 juce_add_plugin("${BaseTargetName}"
     # VERSION ...                               # Set this if the plugin version is different to the project version
@@ -18,6 +30,8 @@ juce_add_plugin("${BaseTargetName}"
     PLUGIN_MANUFACTURER_CODE Cox2
     PLUGIN_CODE Jsdl
     FORMATS Standalone VST3 AU)
+
+juce_generate_juce_header(${BaseTargetName})
 
 target_sources(${BaseTargetName}
     PRIVATE
@@ -42,6 +56,7 @@ target_link_libraries(${BaseTargetName}
         juce::juce_gui_extra
         juce::juce_audio_utils
         juce::juce_audio_devices
+        SDL2::SDL2-static
     PUBLIC
         juce::juce_recommended_config_flags
         juce::juce_recommended_lto_flags
