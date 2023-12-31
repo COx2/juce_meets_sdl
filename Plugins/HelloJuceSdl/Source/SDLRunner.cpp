@@ -10,7 +10,7 @@ namespace sdl2
 
 namespace
 {
-    void drawScene(sdl2::SDL_Renderer* renderer, int width, int height, int mouseX, int mouseY)
+    void drawScene(sdl2::SDL_Renderer* renderer, int width, int height, int mouseX, int mouseY, bool mouseOn)
     {
         {
             sdl2::SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
@@ -20,7 +20,14 @@ namespace
 
         {
             sdl2::SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-            sdl2::SDL_Rect rect{ mouseX - 4, mouseY - 4, 8, 8 };
+            sdl2::SDL_Rect rect{ mouseX - 8, mouseY - 8, 16, 16 };
+            sdl2::SDL_RenderFillRect(renderer, &rect);
+        }
+
+        if (mouseOn)
+        {
+            sdl2::SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
+            sdl2::SDL_Rect rect{ mouseX - 8, mouseY - 8, 16, 16 };
             sdl2::SDL_RenderFillRect(renderer, &rect);
         }
     }
@@ -103,15 +110,19 @@ void SDLRunner::run()
     hostComponentRef_.onRendererCreated();
 
     bool quit = this->threadShouldExit();
+
+    // Create state store.
     sdl2::SDL_Event e;
+    int mouse_x = 0;
+    int mouse_y = 0;
+    bool mouse_button_down = false;
+    int width = 0;
+    int height = 0;
 
     // SDL event loop.
     while (!quit)
     {
         entereRunLoop_ = true;
-        
-        int mouse_x = 0;
-        int mouse_y = 0;
 
         while (sdl2::SDL_PollEvent(&e) != 0)
         {
@@ -124,9 +135,17 @@ void SDLRunner::run()
                 const auto rect_host = hostComponentRef_.getHostComponentRectangle();
                 sdl2::SDL_SetWindowSize(sdlWindow_.load(), rect_host.getWidth(), rect_host.getHeight());
             }
-            else if (e.type == sdl2::SDL_MOUSEBUTTONDOWN)
+            else if (e.type == sdl2::SDL_MOUSEMOTION)
             {
                 sdl2::SDL_GetMouseState(&mouse_x, &mouse_y);
+            }
+            else if (e.type == sdl2::SDL_MOUSEBUTTONDOWN)
+            {
+                mouse_button_down = true;
+            }
+            else if (e.type == sdl2::SDL_MOUSEBUTTONUP)
+            {
+                mouse_button_down = false;
             }
         }
 
@@ -135,11 +154,9 @@ void SDLRunner::run()
             sdl2::SDL_SetRenderDrawColor(sdlRenderer_.load(), 255, 255, 255, 255);
             sdl2::SDL_RenderClear(sdlRenderer_.load());
 
-            int width = 0;
-            int height = 0;
             sdl2::SDL_GetWindowSize(sdlWindow_.load(), &width, &height);
 
-            drawScene(sdlRenderer_.load(), width, height, mouse_x, mouse_y);
+            drawScene(sdlRenderer_.load(), width, height, mouse_x, mouse_y, mouse_button_down);
 
             sdl2::SDL_RenderPresent(sdlRenderer_.load());
         }
