@@ -5,30 +5,41 @@ namespace sdl2
 #include <SDL.h>
 #include <SDL_version.h>
 #include <SDL_syswm.h>
-#include <SDL_video.h>
 }
 
 namespace
 {
     void drawScene(sdl2::SDL_Renderer* renderer, int width, int height, int mouseX, int mouseY, bool mouseOn)
     {
+        sdl2::SDL_SetRenderDrawBlendMode(renderer, sdl2::SDL_BLENDMODE_BLEND);
         {
-            sdl2::SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+            sdl2::SDL_SetRenderDrawColor(renderer, 255, 0, 0, 126);
             sdl2::SDL_Rect rect{ width * 0.2f, height * 0.2f, width * 0.6f, height * 0.6f };
             sdl2::SDL_RenderFillRect(renderer , &rect);
         }
 
         {
-            sdl2::SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+            sdl2::SDL_SetRenderDrawColor(renderer, 0, 255, 0, 126);
             sdl2::SDL_Rect rect{ mouseX - 8, mouseY - 8, 16, 16 };
             sdl2::SDL_RenderFillRect(renderer, &rect);
         }
 
         if (mouseOn)
         {
-            sdl2::SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
+            sdl2::SDL_SetRenderDrawColor(renderer, 0, 0, 255, 126);
             sdl2::SDL_Rect rect{ mouseX - 8, mouseY - 8, 16, 16 };
             sdl2::SDL_RenderFillRect(renderer, &rect);
+
+            const int circleRadius = 20;
+            const double angle = sdl2::SDL_GetTicks() * 0.001;
+            const int circleX = static_cast<int>(mouseX + 50 * std::cos(angle));
+            const int circleY = static_cast<int>(mouseY + 50 * std::sin(angle));
+
+            sdl2::SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
+            sdl2::SDL_RenderDrawLine(renderer, mouseX, mouseY, circleX, circleY);
+
+            sdl2::SDL_Rect rotatingRect = { circleX - 20, circleY - 20, 40, 40 };
+            sdl2::SDL_RenderFillRect(renderer, &rotatingRect);
         }
     }
 }
